@@ -14,6 +14,7 @@
   - 点右上角「恢复 M1」可以改回默认。
 - **筛选**：可按世代（M1–M6）和档位（基础款 / Pro / Max）筛选。
 - **标注推算值**：样本少或推算得出的分数前面标 `≈`。
+- **发售年份**：每行机型后面标注发售年份。同一配置用在不同年份的机型上时（如 M3 的 Air 与 Pro 14），按机型分别标注。
 
 ## 收录范围
 
@@ -57,8 +58,78 @@ open apple-silicon-ladder/index.html
 数据在 `index.html` 的 `D` 数组中，每行格式如下：
 
 ```js
-["芯片名", 世代, "base|Pro|Max", CPU核, GPU核, "机型", 单核, 多核, Metal, "估算标记"]
+["芯片名", 世代, "base|Pro|Max", CPU核, GPU核, "机型 · 发售年份", 单核, 多核, Metal, "估算标记"]
 // 估算标记：s = 单核为推算值，m = 多核为推算值，g = GPU 为推算值，可以组合使用，如 "smg"
+```
+
+## License
+
+MIT
+
+---
+
+# Apple Silicon Ladder · M1 → M6 Laptop Chip Ranking (English)
+
+A single-file web page that ranks every Apple M-series chip configuration shipped in a **MacBook Air or MacBook Pro**, from M1 to M6, by **Geekbench 6** score. Each CPU / GPU core-count combination is its own entry.
+
+Every chip shows **single-core, multi-core, and GPU (Metal)** bars side by side. You choose which metric to sort by, and you can set any chip as the baseline (= 100) so all other chips are rescaled relative to it.
+
+## Features
+
+- **All three metrics at once**: each row shows single-core, multi-core and GPU bars. The metric used for sorting is highlighted.
+- **Sort switch**: sort by single-core, multi-core or GPU. Configurations with equal scores share a rank.
+- **Set baseline**: click "设基准" (Set baseline) at the left of any row. That chip's three scores become 100 and every other chip is rescaled. The default baseline is **M1 (8-core CPU / 7-core GPU)**.
+  - A yellow vertical line on each bar marks the baseline chip's position.
+  - The chosen baseline is saved in your browser (localStorage) and restored next time.
+  - "恢复 M1" (Reset to M1) in the top-right corner restores the default.
+- **Filters**: filter by generation (M1–M6) and tier (base / Pro / Max).
+- **Estimates flagged**: scores with few samples or derived by estimation are prefixed with `≈`.
+- **Release year**: each row shows the release year after the model names. When one configuration shipped in models from different years (e.g. M3 in the Air and the 14" Pro), the year is shown per model.
+
+## Coverage
+
+32 configurations, laptops only:
+
+| Generation | Configurations |
+|---|---|
+| M1 | M1 8/7, 8/8 · M1 Pro 8/14, 10/14, 10/16 · M1 Max 10/24, 10/32 |
+| M2 | M2 8/8, 8/10 · M2 Pro 10/16, 12/19 · M2 Max 12/30, 12/38 |
+| M3 | M3 8/8, 8/10 · M3 Pro 11/14, 12/18 · M3 Max 14/30, 16/40 |
+| M4 | M4 10/8, 10/10 · M4 Pro 12/16, 14/20 · M4 Max 14/32, 16/40 |
+| M5 | M5 10/8, 10/10 · M5 Pro 15/16, 18/20 · M5 Max 18/32, 18/40 |
+| M6 | M6 12/12 |
+
+(Format: CPU cores / GPU cores)
+
+## Data sources and notes
+
+- **CPU single / multi-core**: Geekbench 6 averages for laptop models, mainly from [EveryMac](https://everymac.com/mac-benchmarks/index-mac-benchmarks.html). Where a configuration ships in several chassis, a representative value is used.
+- **GPU**: Geekbench 6 Metal scores from public tests by Notebookcheck, MacRumors, gpu-monkey and others. Configurations with too few samples are estimated from same-generation ratios (roughly ±5%).
+- **M6**: the 14" M6 MacBook Pro ships on 2026-11-06, so the M6 Mac mini's Geekbench 6 median is used for now. There is no M6 Pro / Max yet; the OLED touchscreen MacBook Pro still uses M5 Pro / Max.
+- **Max GPU tiers**: within a generation, both Max GPU tiers have the same CPU core count, so their CPU scores are identical.
+- **Air vs Pro**: the Air has no fan. Geekbench is a short test, so Air scores are close to the Pro's, but the Air throttles under sustained load.
+- **Do not compare with Geekbench 7**: Geekbench 7 was released in July 2026 and its CPU scores are lower overall, so the two versions are not comparable.
+
+Data as of October 2026.
+
+## Usage
+
+No build step and no dependencies:
+
+```bash
+git clone https://github.com/muinocriz/apple-silicon-ladder.git
+open apple-silicon-ladder/index.html
+```
+
+You can also enable GitHub Pages (Settings → Pages → Deploy from branch → `main` / root) to view it online.
+
+## Updating the data
+
+The data lives in the `D` array in `index.html`. Each row has this format:
+
+```js
+["chip name", generation, "base|Pro|Max", CPU cores, GPU cores, "models · release year", single-core, multi-core, Metal, "estimate flags"]
+// estimate flags: s = single-core estimated, m = multi-core estimated, g = GPU estimated; combinable, e.g. "smg"
 ```
 
 ## License
