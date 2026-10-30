@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apple M1–M6 笔记本芯片天梯</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --line:#262a33; --text:#e8eaf0; --muted:#8a90a0;
+    --accent:#4f8cff; --base:#f5b942;
+    --g1:#7c8796; --g2:#3fb68b; --g3:#9b7cf2; --g4:#4f8cff; --g5:#f06a8a; --g6:#f5b942;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif;
+    font-size:14px;line-height:1.45}
+  .wrap{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+  h1{font-size:22px;margin:0 0 4px;font-weight:650;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  .tabs{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .tabs button{background:none;border:0;color:var(--muted);padding:7px 16px;border-radius:7px;cursor:pointer;font-size:14px;font-weight:550}
+  .tabs button.on{background:var(--accent);color:#fff}
+  select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px}
+  .basebox{margin-left:auto;font-size:13px;color:var(--muted)}
+  .basebox b{color:var(--base)}
+  .basebox button{margin-left:8px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:4px 9px;cursor:pointer;font-size:12px}
+  .basebox button:hover{color:var(--text);border-color:var(--muted)}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-bottom:12px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .list{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+  .row{display:grid;grid-template-columns:64px 42px minmax(150px,200px) 1fr;align-items:center;gap:10px;
+       padding:10px 14px;border-top:1px solid var(--line);transition:background .15s}
+  .bars{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .m{display:grid;grid-template-columns:30px 1fr 96px;align-items:center;gap:8px;opacity:.6}
+  .m.on{opacity:1}
+  .m .lb{font-size:11.5px;color:var(--muted)}
+  .m.on .lb{color:var(--text);font-weight:600}
+  .m .track{height:10px}
+  .m.on .track{height:14px}
+  .m .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px}
+  .m .num b{font-size:13px}
+  .m.on .num b{font-size:15px}
+  .m .num span{color:var(--muted);font-size:11px;margin-left:5px}
+  .row:first-child{border-top:0}
+  .row:hover{background:#1c2029}
+  .row.isbase{background:rgba(245,185,66,.08);box-shadow:inset 3px 0 0 var(--base)}
+  .setb{font-size:12px;padding:4px 0;width:58px;border-radius:6px;border:1px solid var(--line);background:#11141a;color:var(--muted);cursor:pointer}
+  .setb:hover{color:var(--text);border-color:var(--accent)}
+  .row.isbase .setb{background:var(--base);border-color:var(--base);color:#1a1300;font-weight:650;cursor:default}
+  .rank{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;text-align:center}
+  .rank.top{color:var(--text)}
+  .name{display:flex;flex-direction:column;min-width:0}
+  .name .chip{font-weight:650;font-size:15px;white-space:nowrap}
+  .name .chip small{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}
+  .name .dev{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .track{height:20px;background:#11141a;border-radius:5px;position:relative;overflow:hidden}
+  .fill{height:100%;border-radius:5px;transition:width .35s ease}
+  .baseline{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--base);opacity:.85}
+  .val{text-align:right;font-variant-numeric:tabular-nums}
+  .val .idx{font-weight:700;font-size:16px}
+  .val .raw{font-size:11.5px;color:var(--muted)}
+  .est{color:var(--base);font-weight:600}
+  .notes{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.7}
+  .notes b{color:var(--text);font-weight:600}
+  @media (max-width:640px){
+    .row{grid-template-columns:54px 30px 1fr;gap:8px;padding:9px 10px}
+    .bars{grid-column:1 / 4;grid-row:2}
+    .m{grid-template-columns:30px 1fr 86px}
+    .setb{width:50px}
+    .basebox{margin-left:0;width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Apple M1 → M6 笔记本芯片天梯</h1>
+  <div class="sub">仅统计 MacBook Air / Pro 搭载的配置 · Geekbench 6（CPU 单核 / 多核，GPU 为 Metal）· 2026 年 10 月</div>
+
+  <div class="bar">
+    <div class="tabs" id="tabs">
+      <button data-k="sc" class="on">按单核排</button>
+      <button data-k="mc">按多核排</button>
+      <button data-k="gpu">按 GPU 排</button>
+    </div>
+    <select id="gen">
+      <option value="all">全部世代</option>
+      <option value="1">M1</option><option value="2">M2</option><option value="3">M3</option>
+      <option value="4">M4</option><option value="5">M5</option><option value="6">M6</option>
+    </select>
+    <select id="tier">
+      <option value="all">全部档位</option>
+      <option value="base">基础款</option><option value="Pro">Pro</option><option value="Max">Max</option>
+    </select>
+    <div class="basebox">基准：<b id="baseName"></b> = 100<button id="reset">恢复 M1</button></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+  <div class="list" id="list"></div>
+
+  <div class="notes">
+    <b>说明</b><br>
+    · 点击任意行最左侧的「设基准」，该芯片的单核、多核、GPU 都设为 100，其余芯片按比例换算；黄色竖线标出基准位置。<br>
+    · CPU 分数为笔记本机型平均分（EveryMac 汇总）；同一配置有多种机身时取相近值。<span class="est">≈</span> 表示样本少或为推算值，误差约 ±5%。<br>
+    · M6 MacBook Pro 11 月 6 日发货，暂以 M6 Mac mini 的 Geekbench 6 中位数代替。目前无 M6 Pro / Max；OLED 触屏 MacBook Pro 仍用 M5 Pro / Max。<br>
+    · 同代 Max 不同 GPU 档 CPU 核数相同，CPU 分数一致。Air 无风扇，Geekbench 短时测试与 Pro 接近，长时间满载会降频。<br>
+    · 不要与 Geekbench 7 分数混比（GB7 CPU 分数整体偏低）。
+  </div>
+</div>
+
+<script>
+// [chip, gen, tier, cpu, gpu, devices, single, multi, metal, flags]  flags: s=单核估算 m=多核估算 g=GPU估算
+const D = [
+ ["M1",1,"base",8,7,"Air 13",2351,8349,31900,""],
+ ["M1",1,"base",8,8,"Air 13 · Pro 13",2350,8350,33100,"g"],
+ ["M1 Pro",1,"Pro",8,14,"Pro 14",2360,10312,62000,"g"],
+ ["M1 Pro",1,"Pro",10,14,"Pro 14",2385,12338,62000,"g"],
+ ["M1 Pro",1,"Pro",10,16,"Pro 14 / 16",2390,12310,68200,""],
+ ["M1 Max",1,"Max",10,24,"Pro 14 / 16",2385,12290,93800,""],
+ ["M1 Max",1,"Max",10,32,"Pro 14 / 16",2385,12290,113000,"g"],
+ ["M2",2,"base",8,8,"Air 13",2560,9580,41000,"g"],
+ ["M2",2,"base",8,10,"Air 13 / 15 · Pro 13",2580,9650,45700,""],
+ ["M2 Pro",2,"Pro",10,16,"Pro 14",2643,12344,71000,"g"],
+ ["M2 Pro",2,"Pro",12,19,"Pro 14 / 16",2650,14410,81600,""],
+ ["M2 Max",2,"Max",12,30,"Pro 14 / 16",2744,14730,111000,"g"],
+ ["M2 Max",2,"Max",12,38,"Pro 14 / 16",2744,14730,140000,"g"],
+ ["M3",3,"base",8,8,"Air 13",3066,11763,43000,"g"],
+ ["M3",3,"base",8,10,"Air 13 / 15 · Pro 14",3080,11700,47400,""],
+ ["M3 Pro",3,"Pro",11,14,"Pro 14",3088,13968,70000,"g"],
+ ["M3 Pro",3,"Pro",12,18,"Pro 14 / 16",3105,15245,78300,""],
+ ["M3 Max",3,"Max",14,30,"Pro 14 / 16",3115,19150,131000,"g"],
+ ["M3 Max",3,"Max",16,40,"Pro 14 / 16",3110,21115,155000,""],
+ ["M4",4,"base",10,8,"Air 13",3721,14684,48000,""],
+ ["M4",4,"base",10,10,"Air 13 / 15 · Pro 14",3730,14700,55000,"g"],
+ ["M4 Pro",4,"Pro",12,16,"Pro 14",3844,20182,99000,""],
+ ["M4 Pro",4,"Pro",14,20,"Pro 14 / 16",3855,22380,114000,""],
+ ["M4 Max",4,"Max",14,32,"Pro 14 / 16",3895,23100,149500,""],
+ ["M4 Max",4,"Max",16,40,"Pro 14 / 16",3910,25700,185000,"g"],
+ ["M5",5,"base",10,8,"Air 13",4168,16934,63000,"g"],
+ ["M5",5,"base",10,10,"Air 13 / 15 · Pro 14",4250,17600,75000,""],
+ ["M5 Pro",5,"Pro",15,16,"Pro 14 · OLED Pro 14",4178,25411,118000,"g"],
+ ["M5 Pro",5,"Pro",18,20,"Pro 14 / 16 · OLED Pro",4250,27950,137000,""],
+ ["M5 Max",5,"Max",18,32,"Pro 14 / 16 · OLED Pro",4270,28860,190000,"g"],
+ ["M5 Max",5,"Max",18,40,"Pro 14 / 16 · OLED Pro",4270,28860,225000,"g"],
+ ["M6",6,"base",12,12,"Pro 14（Mac mini 数据）",4640,20950,92000,"smg"],
+].map((r,i)=>({id:i,chip:r[0],gen:r[1],tier:r[2],cpu:r[3],gpu:r[4],dev:r[5],sc:r[6],mc:r[7],g:r[8],flags:r[9]}));
+
+const KEY = {sc:"sc", mc:"mc", gpu:"g"};
+const FLAG = {sc:"s", mc:"m", gpu:"g"};
+const GENC = ["","var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g6)"];
+
+let metric="sc", baseId=0, gen="all", tier="all";
+try{ const s=localStorage.getItem("mladder-base"); if(s!==null && D[+s]) baseId=+s; }catch(e){}
+
+document.getElementById("legend").innerHTML =
+  [1,2,3,4,5,6].map(g=>`<span><i style="background:${GENC[g]}"></i>M${g}</span>`).join("");
+
+function render(){
+  const k = KEY[metric], base = D[baseId];
+  document.getElementById("baseName").textContent = `${base.chip} ${base.cpu}核CPU / ${base.gpu}核GPU`;
+  const rows = D.filter(d=>(gen==="all"||d.gen==+gen)&&(tier==="all"||d.tier===tier))
+                .sort((a,b)=>b[k]-a[k] || b.gen-a.gen);
+  const MAX = {}; for(const m of ["sc","mc","gpu"]) MAX[m]=Math.max(...D.map(d=>d[KEY[m]]));
+  const LB = {sc:"单核", mc:"多核", gpu:"GPU"};
+  let rank=0, prev=null;
+  document.getElementById("list").innerHTML = rows.map((d,i)=>{
+    if(d[k]!==prev){ rank=i+1; prev=d[k]; }
+    const isB = d.id===baseId;
+    const bars = ["sc","mc","gpu"].map(m=>{
+      const kk=KEY[m], est=d.flags.includes(FLAG[m]);
+      return `<div class="m${m===metric?" on":""}">
+        <span class="lb">${LB[m]}</span>
+        <div class="track">
+          <div class="fill" style="width:${(d[kk]/MAX[m]*100).toFixed(2)}%;background:${GENC[d.gen]}"></div>
+          <div class="baseline" style="left:calc(${(base[kk]/MAX[m]*100).toFixed(2)}% - 1px)"></div>
+        </div>
+        <span class="num">${est?'<span class="est" style="margin:0">≈</span>':""}<b>${(d[kk]/base[kk]*100).toFixed(0)}</b><span>${d[kk].toLocaleString("en-US")}</span></span>
+      </div>`;
+    }).join("");
+    return `<div class="row${isB?" isbase":""}">
+      <button class="setb" data-id="${d.id}">${isB?"基准":"设基准"}</button>
+      <div class="rank${rank<=3?" top":""}">${rank}</div>
+      <div class="name">
+        <span class="chip">${d.chip}<small>${d.cpu}C / ${d.gpu}G</small></span>
+        <span class="dev">${d.dev}</span>
+      </div>
+      <div class="bars">${bars}</div>
+    </div>`;
+  }).join("") || `<div class="row" style="grid-template-columns:1fr;color:var(--muted)">没有符合条件的芯片</div>`;
+}
+
+document.getElementById("tabs").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  metric=b.dataset.k;
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  render();
+});
+document.getElementById("list").addEventListener("click",e=>{
+  const b=e.target.closest(".setb"); if(!b) return;
+  baseId=+b.dataset.id;
+  try{ localStorage.setItem("mladder-base",baseId); }catch(err){}
+  render();
+});
+document.getElementById("reset").onclick=()=>{
+  baseId=0; try{ localStorage.setItem("mladder-base",0); }catch(err){} render();
+};
+document.getElementById("gen").onchange=e=>{gen=e.target.value;render();};
+document.getElementById("tier").onchange=e=>{tier=e.target.value;render();};
+render();
+</script>
+</body>
+</html>
