@@ -1,6 +1,6 @@
 # Apple Silicon Ladder · M1 → M6 笔记本芯片天梯
 
-这是一个单文件网页，把 MacBook Air / Pro 搭载过的 Apple M 系列芯片（M1 到 M6，每个 CPU / GPU 核数组合单独算一档）按 **Geekbench 6** 成绩排成天梯。
+这是一个静态网页，把 MacBook Air / Pro 搭载过的 Apple M 系列芯片（M1 到 M6，每个 CPU / GPU 核数组合单独算一档）按 **Geekbench 6** 成绩排成天梯。
 
 每颗芯片同时显示 **单核、多核、GPU（Metal）** 三条进度条。可以选按哪一项排序，也可以把任意芯片设为基准（= 100），其余芯片按比例换算。
 
@@ -42,25 +42,48 @@
 
 数据截至 2026 年 10 月。
 
+## 项目结构
+
+```
+index.html   网页（样式和逻辑）
+data.csv     网页展示的全部数据
+```
+
+网页打开时会读取同目录下的 `data.csv`，代码里不包含数据。
+
 ## 使用
 
-不需要构建，也没有依赖：
+不需要构建，也没有依赖。
+
+- **在线**：开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / root）后直接访问。
+- **本地**：直接双击打开 `index.html` 时，浏览器会阻止网页读取同目录的文件。这时页面会提示，你可以点「选择 data.csv」手动加载；也可以启动一个本地服务器：
 
 ```bash
 git clone https://github.com/muinocriz/apple-silicon-ladder.git
-open apple-silicon-ladder/index.html
+cd apple-silicon-ladder
+python3 -m http.server 8000
+# 浏览器打开 http://localhost:8000
 ```
-
-也可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / root），直接在线访问。
 
 ## 更新数据
 
-数据在 `index.html` 的 `D` 数组中，每行格式如下：
+只需要改 `data.csv`，不用改 HTML。每行是一档芯片配置，各列含义：
 
-```js
-["芯片名", 世代, "base|Pro|Max", CPU核, GPU核, "机型 · 发售年份", 单核, 多核, Metal, "估算标记"]
-// 估算标记：s = 单核为推算值，m = 多核为推算值，g = GPU 为推算值，可以组合使用，如 "smg"
-```
+| 列 | 含义 | 示例 |
+|---|---|---|
+| `chip` | 芯片名 | `M2 Max` |
+| `gen` | 世代（1–6），决定颜色和世代筛选 | `2` |
+| `tier` | 档位：`base` / `Pro` / `Max` | `Max` |
+| `cpu_cores` | CPU 核数 | `12` |
+| `gpu_cores` | GPU 核数 | `30` |
+| `models` | 机型 · 发售年份 | `Pro 14 / 16 · 2023` |
+| `single` | Geekbench 6 单核 | `2744` |
+| `multi` | Geekbench 6 多核 | `14730` |
+| `metal` | Geekbench 6 Metal | `111000` |
+| `estimated` | 推算标记：`s` 单核、`m` 多核、`g` GPU，可组合（如 `smg`），留空表示都是实测 | `g` |
+
+- 用 UTF-8 编码保存。如果某个字段里有英文逗号，要用英文双引号把它括起来。
+- 默认基准是 `chip=M1, cpu_cores=8, gpu_cores=7` 那一行。如果删掉这一行，默认基准改为第一行。
 
 ## License
 
@@ -70,7 +93,7 @@ MIT
 
 # Apple Silicon Ladder · M1 → M6 Laptop Chip Ranking (English)
 
-A single-file web page that ranks every Apple M-series chip configuration shipped in a **MacBook Air or MacBook Pro**, from M1 to M6, by **Geekbench 6** score. Each CPU / GPU core-count combination is its own entry.
+A static web page that ranks every Apple M-series chip configuration shipped in a **MacBook Air or MacBook Pro**, from M1 to M6, by **Geekbench 6** score. Each CPU / GPU core-count combination is its own entry.
 
 Every chip shows **single-core, multi-core, and GPU (Metal)** bars side by side. You choose which metric to sort by, and you can set any chip as the baseline (= 100) so all other chips are rescaled relative to it.
 
@@ -112,25 +135,48 @@ Every chip shows **single-core, multi-core, and GPU (Metal)** bars side by side.
 
 Data as of October 2026.
 
+## Project structure
+
+```
+index.html   the page (styles and logic)
+data.csv     all data shown on the page
+```
+
+On load, the page reads `data.csv` from the same folder; the code itself contains no data.
+
 ## Usage
 
-No build step and no dependencies:
+No build step and no dependencies.
+
+- **Online**: enable GitHub Pages (Settings → Pages → Deploy from branch → `main` / root) and open the site.
+- **Locally**: if you double-click `index.html`, the browser blocks the page from reading files in the same folder. The page then shows a prompt; click "选择 data.csv" (Choose data.csv) to load it by hand, or run a local server:
 
 ```bash
 git clone https://github.com/muinocriz/apple-silicon-ladder.git
-open apple-silicon-ladder/index.html
+cd apple-silicon-ladder
+python3 -m http.server 8000
+# then open http://localhost:8000
 ```
-
-You can also enable GitHub Pages (Settings → Pages → Deploy from branch → `main` / root) to view it online.
 
 ## Updating the data
 
-The data lives in the `D` array in `index.html`. Each row has this format:
+Edit `data.csv` only; the HTML does not need to change. Each row is one chip configuration. Columns:
 
-```js
-["chip name", generation, "base|Pro|Max", CPU cores, GPU cores, "models · release year", single-core, multi-core, Metal, "estimate flags"]
-// estimate flags: s = single-core estimated, m = multi-core estimated, g = GPU estimated; combinable, e.g. "smg"
-```
+| Column | Meaning | Example |
+|---|---|---|
+| `chip` | Chip name | `M2 Max` |
+| `gen` | Generation (1–6); sets the color and the generation filter | `2` |
+| `tier` | Tier: `base` / `Pro` / `Max` | `Max` |
+| `cpu_cores` | CPU cores | `12` |
+| `gpu_cores` | GPU cores | `30` |
+| `models` | Models · release year | `Pro 14 / 16 · 2023` |
+| `single` | Geekbench 6 single-core | `2744` |
+| `multi` | Geekbench 6 multi-core | `14730` |
+| `metal` | Geekbench 6 Metal | `111000` |
+| `estimated` | Estimate flags: `s` single-core, `m` multi-core, `g` GPU; combinable (e.g. `smg`); empty means all measured | `g` |
+
+- Save as UTF-8. Wrap any field that contains a comma in double quotes.
+- The default baseline is the row with `chip=M1, cpu_cores=8, gpu_cores=7`. If that row is removed, the first row becomes the default.
 
 ## License
 

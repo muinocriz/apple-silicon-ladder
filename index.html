@@ -63,6 +63,10 @@
   .est{color:var(--base);font-weight:600}
   .notes{color:var(--muted);font-size:12px;margin-top:16px;line-height:1.7}
   .notes b{color:var(--text);font-weight:600}
+  .loaderr{padding:22px 18px;color:var(--text);font-size:14px;line-height:1.7}
+  .loaderr .hint{color:var(--muted);font-size:12.5px;margin:6px 0 12px}
+  .loaderr code{background:#11141a;padding:1px 5px;border-radius:4px}
+  .pick{display:inline-block;background:var(--accent);color:#fff;border-radius:7px;padding:6px 14px;cursor:pointer;font-size:13px}
   @media (max-width:640px){
     .row{grid-template-columns:54px 30px 1fr;gap:8px;padding:9px 10px}
     .bars{grid-column:1 / 4;grid-row:2}
@@ -109,48 +113,67 @@
 </div>
 
 <script>
-// [chip, gen, tier, cpu, gpu, devices, single, multi, metal, flags]  flags: s=单核估算 m=多核估算 g=GPU估算
-const D = [
- ["M1",1,"base",8,7,"Air 13 · 2020",2351,8349,31900,""],
- ["M1",1,"base",8,8,"Air 13 · Pro 13 · 2020",2350,8350,33100,"g"],
- ["M1 Pro",1,"Pro",8,14,"Pro 14 · 2021",2360,10312,62000,"g"],
- ["M1 Pro",1,"Pro",10,14,"Pro 14 · 2021",2385,12338,62000,"g"],
- ["M1 Pro",1,"Pro",10,16,"Pro 14 / 16 · 2021",2390,12310,68200,""],
- ["M1 Max",1,"Max",10,24,"Pro 14 / 16 · 2021",2385,12290,93800,""],
- ["M1 Max",1,"Max",10,32,"Pro 14 / 16 · 2021",2385,12290,113000,"g"],
- ["M2",2,"base",8,8,"Air 13 · 2022",2560,9580,41000,"g"],
- ["M2",2,"base",8,10,"Air 13 (2022) / 15 (2023) · Pro 13 (2022)",2580,9650,45700,""],
- ["M2 Pro",2,"Pro",10,16,"Pro 14 · 2023",2643,12344,71000,"g"],
- ["M2 Pro",2,"Pro",12,19,"Pro 14 / 16 · 2023",2650,14410,81600,""],
- ["M2 Max",2,"Max",12,30,"Pro 14 / 16 · 2023",2744,14730,111000,"g"],
- ["M2 Max",2,"Max",12,38,"Pro 14 / 16 · 2023",2744,14730,140000,"g"],
- ["M3",3,"base",8,8,"Air 13 · 2024",3066,11763,43000,"g"],
- ["M3",3,"base",8,10,"Air 13 / 15 (2024) · Pro 14 (2023)",3080,11700,47400,""],
- ["M3 Pro",3,"Pro",11,14,"Pro 14 · 2023",3088,13968,70000,"g"],
- ["M3 Pro",3,"Pro",12,18,"Pro 14 / 16 · 2023",3105,15245,78300,""],
- ["M3 Max",3,"Max",14,30,"Pro 14 / 16 · 2023",3115,19150,131000,"g"],
- ["M3 Max",3,"Max",16,40,"Pro 14 / 16 · 2023",3110,21115,155000,""],
- ["M4",4,"base",10,8,"Air 13 · 2025",3721,14684,48000,""],
- ["M4",4,"base",10,10,"Air 13 / 15 (2025) · Pro 14 (2024)",3730,14700,55000,"g"],
- ["M4 Pro",4,"Pro",12,16,"Pro 14 · 2024",3844,20182,99000,""],
- ["M4 Pro",4,"Pro",14,20,"Pro 14 / 16 · 2024",3855,22380,114000,""],
- ["M4 Max",4,"Max",14,32,"Pro 14 / 16 · 2024",3895,23100,149500,""],
- ["M4 Max",4,"Max",16,40,"Pro 14 / 16 · 2024",3910,25700,185000,"g"],
- ["M5",5,"base",10,8,"Air 13 · 2026",4168,16934,63000,"g"],
- ["M5",5,"base",10,10,"Air 13 / 15 (2026) · Pro 14 (2025)",4250,17600,75000,""],
- ["M5 Pro",5,"Pro",15,16,"Pro 14 · OLED Pro 14 · 2026",4178,25411,118000,"g"],
- ["M5 Pro",5,"Pro",18,20,"Pro 14 / 16 · OLED Pro · 2026",4250,27950,137000,""],
- ["M5 Max",5,"Max",18,32,"Pro 14 / 16 · OLED Pro · 2026",4270,28860,190000,"g"],
- ["M5 Max",5,"Max",18,40,"Pro 14 / 16 · OLED Pro · 2026",4270,28860,225000,"g"],
- ["M6",6,"base",12,12,"Pro 14 · 2026（Mac mini 数据）",4640,20950,92000,"smg"],
-].map((r,i)=>({id:i,chip:r[0],gen:r[1],tier:r[2],cpu:r[3],gpu:r[4],dev:r[5],sc:r[6],mc:r[7],g:r[8],flags:r[9]}));
+// 数据来自同目录的 data.csv（列：chip,gen,tier,cpu_cores,gpu_cores,models,single,multi,metal,estimated）
+// estimated：s=单核估算 m=多核估算 g=GPU估算，可组合
+let D = [];
 
 const KEY = {sc:"sc", mc:"mc", gpu:"g"};
 const FLAG = {sc:"s", mc:"m", gpu:"g"};
 const GENC = ["","var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g6)"];
+const DEFAULT_BASE = "M1|8|7";
 
 let metric="sc", baseId=0, gen="all", tier="all";
-try{ const s=localStorage.getItem("mladder-base"); if(s!==null && D[+s]) baseId=+s; }catch(e){}
+const keyOf = d => `${d.chip}|${d.cpu}|${d.gpu}`;
+const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function parseCSV(text){
+  const rows=[]; let row=[], f="", q=false;
+  text=text.replace(/^﻿/,"");
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; }
+      else f+=c;
+    }else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=""; }
+    else if(c==='\n'||c==='\r'){
+      if(c==='\r'&&text[i+1]==='\n') i++;
+      row.push(f); f=""; if(row.some(x=>x.trim()!=="")) rows.push(row); row=[];
+    }else f+=c;
+  }
+  row.push(f); if(row.some(x=>x.trim()!=="")) rows.push(row);
+  return rows;
+}
+
+function loadData(text){
+  const [h,...body]=parseCSV(text);
+  const ix=Object.fromEntries(h.map((n,i)=>[n.trim(),i]));
+  const need=["chip","gen","tier","cpu_cores","gpu_cores","models","single","multi","metal","estimated"];
+  const miss=need.filter(n=>!(n in ix));
+  if(miss.length) throw new Error("data.csv 缺少列："+miss.join(", "));
+  D = body.map((r,i)=>({id:i, chip:r[ix.chip].trim(), gen:+r[ix.gen], tier:r[ix.tier].trim(),
+    cpu:+r[ix.cpu_cores], gpu:+r[ix.gpu_cores], dev:r[ix.models].trim(),
+    sc:+r[ix.single], mc:+r[ix.multi], g:+r[ix.metal], flags:(r[ix.estimated]||"").trim()}));
+  if(!D.length) throw new Error("data.csv 没有数据行");
+  let saved=null; try{ saved=localStorage.getItem("mladder-base-key"); }catch(e){}
+  const pick = D.find(d=>keyOf(d)===saved) || D.find(d=>keyOf(d)===DEFAULT_BASE) || D[0];
+  baseId = pick.id;
+}
+
+function saveBase(){ try{ localStorage.setItem("mladder-base-key", keyOf(D[baseId])); }catch(e){} }
+
+function showLoadError(msg){
+  document.getElementById("list").innerHTML = `<div class="loaderr">
+    <div>无法读取 <b>data.csv</b>：${esc(msg)}</div>
+    <div class="hint">直接双击打开本地 HTML 时，浏览器会阻止读取同目录文件。可以用 GitHub Pages 或本地服务器（如 <code>python3 -m http.server</code>）打开，或者手动选择 data.csv：</div>
+    <label class="pick">选择 data.csv<input type="file" accept=".csv,text/csv" id="csvfile" hidden></label>
+  </div>`;
+  document.getElementById("csvfile").onchange = async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{ loadData(await f.text()); render(); }catch(err){ showLoadError(err.message); }
+  };
+}
+
 
 document.getElementById("legend").innerHTML =
   [1,2,3,4,5,6].map(g=>`<span><i style="background:${GENC[g]}"></i>M${g}</span>`).join("");
@@ -181,8 +204,8 @@ function render(){
       <button class="setb" data-id="${d.id}">${isB?"基准":"设基准"}</button>
       <div class="rank${rank<=3?" top":""}">${rank}</div>
       <div class="name">
-        <span class="chip">${d.chip}<small>${d.cpu}C / ${d.gpu}G</small></span>
-        <span class="dev">${d.dev}</span>
+        <span class="chip">${esc(d.chip)}<small>${d.cpu}C / ${d.gpu}G</small></span>
+        <span class="dev">${esc(d.dev)}</span>
       </div>
       <div class="bars">${bars}</div>
     </div>`;
@@ -193,20 +216,23 @@ document.getElementById("tabs").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
   metric=b.dataset.k;
   document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
-  render();
+  if(D.length) render();
 });
 document.getElementById("list").addEventListener("click",e=>{
   const b=e.target.closest(".setb"); if(!b) return;
-  baseId=+b.dataset.id;
-  try{ localStorage.setItem("mladder-base",baseId); }catch(err){}
-  render();
+  baseId=+b.dataset.id; saveBase(); render();
 });
 document.getElementById("reset").onclick=()=>{
-  baseId=0; try{ localStorage.setItem("mladder-base",0); }catch(err){} render();
+  if(!D.length) return;
+  baseId=(D.find(d=>keyOf(d)===DEFAULT_BASE)||D[0]).id; saveBase(); render();
 };
-document.getElementById("gen").onchange=e=>{gen=e.target.value;render();};
-document.getElementById("tier").onchange=e=>{tier=e.target.value;render();};
-render();
+document.getElementById("gen").onchange=e=>{gen=e.target.value; if(D.length) render();};
+document.getElementById("tier").onchange=e=>{tier=e.target.value; if(D.length) render();};
+
+fetch("data.csv",{cache:"no-cache"})
+  .then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
+  .then(t=>{ loadData(t); render(); })
+  .catch(err=>showLoadError(err.message));
 </script>
 </body>
 </html>
