@@ -85,6 +85,10 @@ python3 -m http.server 8000
 - 用 UTF-8 编码保存。如果某个字段里有英文逗号，要用英文双引号把它括起来。
 - 默认基准是 `chip=M1, cpu_cores=8, gpu_cores=7` 那一行。如果删掉这一行，默认基准改为第一行。
 
+## 特别鸣谢
+
+特别感谢 [@zhoulin12138](https://github.com/zhoulin12138) 为本项目提供的思路、辅导与支持。
+
 ## License
 
 MIT
@@ -177,6 +181,10 @@ Edit `data.csv` only; the HTML does not need to change. Each row is one chip con
 
 - Save as UTF-8. Wrap any field that contains a comma in double quotes.
 - The default baseline is the row with `chip=M1, cpu_cores=8, gpu_cores=7`. If that row is removed, the first row becomes the default.
+
+## Acknowledgements
+
+Special thanks to [@zhoulin12138](https://github.com/zhoulin12138) for the ideas, guidance and support behind this project.
 
 ## License
 
