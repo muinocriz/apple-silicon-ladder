@@ -15,6 +15,37 @@
 - **筛选**：可按世代（M1–M6）和档位（基础款 / Pro / Max）筛选。
 - **标注推算值**：样本少或推算得出的分数前面标 `≈`。
 - **发售年份**：每行机型后面标注发售年份。同一配置用在不同年份的机型上时（如 M3 的 Air 与 Pro 14），按机型分别标注。
+- **换机判定**：选择旧芯片、准备买的新芯片（或「自动：同档位最新」）和主要用途，按下方「换机判定规则」算出单核 / 多核 / GPU 比例和综合分，并给出结论。列表中旧芯片、新芯片分别标「旧」「新」。
+
+## 换机判定规则（两档版）
+
+只衡量性能，不考虑内存、电池、系统支持年限等因素。
+
+**0. 比较对象**：旧芯片和准备购买的芯片比较。没有明确目标时，和同档位的最新芯片比较（Pro 对 Pro，基础款对基础款；网页里「自动」取最新一代的满血配置）。单项比例最高按 100% 计算。
+
+**1. 三项比例**（Geekbench 6 CPU 和 Metal 成绩）
+- S = 旧单核 ÷ 新单核
+- M = 旧多核 ÷ 新多核
+- G = 旧 GPU ÷ 新 GPU
+
+**2. 综合分**：P = S^0.40 × M^0.35 × G^0.25（加权几何平均）
+- P ≤ 60%（新机 ≥ 1.67 倍）：明显值得
+- P ≤ 45%（新机 ≥ 2.2 倍）：强烈推荐
+
+**3. 单项触发线**
+
+| 项目 | 明显值得 | 强烈推荐 | 何时生效 |
+|---|---:|---:|---|
+| 单核 | ≤ 65% | ≤ 50% | 始终生效 |
+| 多核 | ≤ 55% | ≤ 40% | 编译、视频导出、虚拟机等 |
+| GPU | ≤ 50% | ≤ 35% | 剪辑、3D、游戏、本地 AI 等 |
+
+**4. 最终判定**：先按综合分确定区间；单项触发更高一档时，最多提高一档。
+- 综合分未入区，但触发了任一单项线：明显值得
+- 综合分在明显值得区，又触发了单项的强烈推荐线：强烈推荐
+- 综合分和单项都没有触发：暂不需要因性能换机
+
+**一句话版**：综合分按 60 / 45 两条线分区；单核 65 / 50 始终生效，多核 55 / 40、GPU 50 / 35 按用途生效，单项最多提一档。
 
 ## 收录范围
 
@@ -112,6 +143,37 @@ Every chip shows **single-core, multi-core, and GPU (Metal)** bars side by side.
 - **Filters**: filter by generation (M1–M6) and tier (base / Pro / Max).
 - **Estimates flagged**: scores with few samples or derived by estimation are prefixed with `≈`.
 - **Release year**: each row shows the release year after the model names. When one configuration shipped in models from different years (e.g. M3 in the Air and the 14" Pro), the year is shown per model.
+- **Upgrade check**: pick your current chip, the chip you plan to buy (or "自动" = latest chip of the same tier) and your main workloads. The page computes the single-core / multi-core / GPU ratios and the composite score using the "Upgrade rules" below and gives a verdict. The two chips are tagged "旧" (old) and "新" (new) in the list.
+
+## Upgrade rules (two-tier version)
+
+Performance only; memory, battery, OS support lifetime and similar factors are not considered.
+
+**0. What to compare**: your current chip vs. the chip you plan to buy. With no specific target, compare with the latest chip of the same tier (Pro vs. Pro, base vs. base; on the page, "自动" picks the top configuration of the latest generation). Each ratio is capped at 100%.
+
+**1. Three ratios** (Geekbench 6 CPU and Metal scores)
+- S = old single-core ÷ new single-core
+- M = old multi-core ÷ new multi-core
+- G = old GPU ÷ new GPU
+
+**2. Composite score**: P = S^0.40 × M^0.35 × G^0.25 (weighted geometric mean)
+- P ≤ 60% (new chip ≥ 1.67×): clearly worth it
+- P ≤ 45% (new chip ≥ 2.2×): strongly recommended
+
+**3. Per-metric trigger lines**
+
+| Metric | Clearly worth it | Strongly recommended | Applies when |
+|---|---:|---:|---|
+| Single-core | ≤ 65% | ≤ 50% | Always |
+| Multi-core | ≤ 55% | ≤ 40% | Compiling, video export, VMs, etc. |
+| GPU | ≤ 50% | ≤ 35% | Video editing, 3D, gaming, local AI, etc. |
+
+**4. Final verdict**: start from the composite-score zone; a per-metric trigger can raise the result by at most one level.
+- Composite score outside both zones, but any per-metric line triggered: clearly worth it
+- Composite score in the "clearly worth it" zone and a per-metric "strongly recommended" line triggered: strongly recommended
+- Neither the composite score nor any metric triggered: no need to upgrade for performance
+
+**In one line**: the composite score is split by the 60 / 45 lines; single-core 65 / 50 always applies, multi-core 55 / 40 and GPU 50 / 35 apply by workload, and a single metric can raise the verdict by at most one level.
 
 ## Coverage
 
