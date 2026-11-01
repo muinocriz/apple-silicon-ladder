@@ -16,6 +16,11 @@
     font-size:14px;line-height:1.45}
   .wrap{max-width:980px;margin:0 auto;padding:24px 16px 48px}
   h1{font-size:22px;margin:0 0 4px;font-weight:650;letter-spacing:.2px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .gh{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;color:var(--text);text-decoration:none;font-size:13px;
+      border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 11px}
+  .gh:hover{border-color:var(--muted)}
+  .gh svg{width:16px;height:16px;fill:currentColor}
   .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
   .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
   .tabs{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
@@ -113,7 +118,13 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Apple M1 → M6 笔记本芯片天梯</h1>
+  <div class="top">
+    <h1>Apple M1 → M6 笔记本芯片天梯</h1>
+    <a class="gh" href="https://github.com/muinocriz/apple-silicon-ladder" target="_blank" rel="noopener" title="在 GitHub 上查看项目">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
   <div class="sub">仅统计 MacBook Air / Pro 搭载的配置 · Geekbench 6（CPU 单核 / 多核，GPU 为 Metal）· 2026 年 10 月</div>
 
   <div class="bar">
@@ -150,7 +161,7 @@
       <div class="verdict" id="jVerdict"></div>
       <div class="jnote">
         S / M / G = 旧 ÷ 新（Geekbench 6 单核 / 多核 / Metal），单项最高按 100% 计。综合分 P = S<sup>0.40</sup> × M<sup>0.35</sup> × G<sup>0.25</sup>：P ≤ 60% 明显值得，P ≤ 45% 强烈推荐。
-        单项线：单核 65% / 50%（始终生效），多核 55% / 40%、GPU 50% / 35%（勾选对应用途才生效）。先按 P 分区，单项触发更高一档时最多提高一档。
+        单项触发线（比例 ≤ 前一个数触发「明显值得」线，≤ 后一个数触发「强烈推荐」线）：单核 65% / 50%，始终生效；多核 55% / 40%、GPU 50% / 35%，勾选对应用途才生效。例如多核 M ≤ 55% 即新机多核 ≥ 约 1.8 倍，M ≤ 40% 即 ≥ 2.5 倍。先按 P 分区，单项触发更高一档时，最终结果最多提高一档。
         「自动」= 同档位最新一代中的满血配置。本规则不考虑内存、电池、系统支持年限等因素。
       </div>
     </div>
@@ -291,9 +302,9 @@ function judge(){
 
   const tag = (l,on)=> !on ? `<span class="tag off">未启用</span>` : `<span class="tag ${l?"l"+l:""}">${l===2?"强烈推荐线":l===1?"明显值得线":"未触发"}</span>`;
   document.getElementById("jRes").innerHTML =
-    items.map(i=>`<div class="jcell"><div class="t">${i.n} 比例 ${i.n==="GPU"?"G":i.n==="单核"?"S":"M"}（线 ${i.lines}）</div>
+    items.map(i=>`<div class="jcell"><div class="t">${i.n} 比例 ${i.n==="GPU"?"G":i.n==="单核"?"S":"M"}</div>
       <div class="v">${pct(i.r)}</div><div class="x">新机 ${(1/i.r).toFixed(2)}×</div>${tag(i.l,i.on)}</div>`).join("")
-    + `<div class="jcell"><div class="t">综合分 P（线 60 / 45）</div><div class="v">${pct(P)}</div>
+    + `<div class="jcell"><div class="t">综合分 P</div><div class="v">${pct(P)}</div>
        <div class="x">新机 ${(1/P).toFixed(2)}×</div><span class="tag ${zP?"l"+zP:""}">${zP===2?"强烈推荐区":zP===1?"明显值得区":"未入区"}</span></div>`;
 
   let why;
