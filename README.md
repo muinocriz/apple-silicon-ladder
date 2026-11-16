@@ -19,10 +19,14 @@
 
 <p align="center">
   <img src="screenshots/换机判定.png" alt="换机判定">
+  <br>
+  <sub>换机判定模块，提供斩杀线功能，单一条件提升过高直接判定明显值得</sub>
 </p>
 
 <p align="center">
   <img src="screenshots/性能天梯.png" alt="性能天梯">
+  <br>
+  <sub>性能天梯功能，提供三种性能指标的快速基准对齐展示</sub>
 </p>
 
 ## 换机判定规则（两档版）
